@@ -34,18 +34,29 @@ pub fn quickSort(comptime T: type, items: []T, lessThan: fn (lhs: T, rhs: T) boo
 
     var i: usize = 0;
     var j: usize = items.len - 1;
-    const pivotIdx = while (true) {
-        while (lessThan(items[i], pivot)) : (i += 1) {}
-        while (lessThan(pivot, items[j])) : (j -= 1) {}
-        if (i < j and lessThan(items[j], items[i])) {
-            swap(T, &items[i], &items[j]);
+    while (i < j) {
+        if (lessThan(items[i], pivot)) {
+            i += 1;
+        } else if (lessThan(pivot, items[j])) {
+            j -= 1;
         } else {
-            break j;
+            swap(T, &items[i], &items[j]);
+            i += 1;
+            j -= 1;
         }
-    } else unreachable;
+    }
 
-    quickSort(T, items[0..pivotIdx], lessThan);
-    quickSort(T, items[pivotIdx..], lessThan);
+    if (i == 0) {
+        quickSort(T, items[1..], lessThan);
+    } else if (i == items.len - 1) {
+        quickSort(T, items[0..i], lessThan);
+    } else {
+        if (lessThan(items[i], pivot)) {
+            i += 1;
+        }
+        quickSort(T, items[0..i], lessThan);
+        quickSort(T, items[i..], lessThan);
+    }
 }
 
 pub fn mergeSort(comptime T: type, allocator: *std.mem.Allocator, items: []T, comptime lessThan: fn (lhs: T, rhs: T) bool) !void {

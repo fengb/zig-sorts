@@ -108,7 +108,7 @@ test "ZeeAlloc benchmark" {
                 var buffer: [1024 * 1024]u8 = undefined;
                 std.mem.copy(u8, buffer[0..], a.input);
                 sort(u8, buffer[0..a.input.len], sorts.u8LessThan);
-                //try sorts.validate(u8, buffer[0..a.input.len], sorts.u8LessThan);
+                try sorts.validate(u8, buffer[0..a.input.len], sorts.u8LessThan);
             }
 
             fn benchSortAlloc(a: Arg, comptime sort: var) anyerror!void {
@@ -118,7 +118,7 @@ test "ZeeAlloc benchmark" {
                 var buffer: [1024 * 1024]u8 = undefined;
                 std.mem.copy(u8, buffer[0..], a.input);
                 try sort(u8, &fba.allocator, buffer[0..a.input.len], sorts.u8LessThan);
-                //try sorts.validate(u8, buffer[0..a.input.len], sorts.u8LessThan);
+                try sorts.validate(u8, buffer[0..a.input.len], sorts.u8LessThan);
             }
         };
 
