@@ -124,10 +124,13 @@ test "ZeeAlloc benchmark" {
 
         pub const args = [_]Arg{
             Arg{ .input = "zyxabimpncc" },
-            Arg{ .input = @embedFile("randdata") },
+            Arg{ .input = @embedFile("sorted.data") },
+            Arg{ .input = @embedFile("reversed.data") },
+            Arg{ .input = @embedFile("rand.data") },
+            Arg{ .input = @embedFile("double.data") },
         };
 
-        pub const iterations = 10000;
+        pub const iterations = 1000;
 
         pub fn InsertionSort(a: Arg) void {
             a.benchSort(sorts.insertionSort) catch unreachable;
