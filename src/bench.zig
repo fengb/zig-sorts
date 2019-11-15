@@ -99,6 +99,7 @@ fn nTimes(c: u8, times: usize) void {
 }
 
 const sorts = @import("main.zig");
+const stdpp = @import("stdpp.zig");
 test "ZeeAlloc benchmark" {
     try benchmark(struct {
         const Arg = struct {
@@ -130,10 +131,22 @@ test "ZeeAlloc benchmark" {
             Arg{ .input = @embedFile("double.data") },
         };
 
-        pub const iterations = 1000;
+        pub const iterations = 10000;
 
-        pub fn InsertionSort(a: Arg) void {
-            a.benchSort(sorts.insertionSort) catch unreachable;
+        pub fn StdInsertionSort(a: Arg) void {
+            a.benchSort(std.sort.insertionSort) catch unreachable;
+        }
+
+        pub fn StdSort(a: Arg) void {
+            a.benchSort(std.sort.sort) catch unreachable;
+        }
+
+        pub fn StdPPInsertionSort(a: Arg) void {
+            a.benchSort(stdpp.insertionSort) catch unreachable;
+        }
+
+        pub fn StdPPSort(a: Arg) void {
+            a.benchSort(stdpp.sort) catch unreachable;
         }
 
         pub fn BinaryInsertionSort(a: Arg) void {
@@ -146,10 +159,6 @@ test "ZeeAlloc benchmark" {
 
         pub fn MergeSort(a: Arg) void {
             a.benchSortAlloc(sorts.mergeSort) catch unreachable;
-        }
-
-        pub fn StdSort(a: Arg) void {
-            a.benchSort(std.sort.sort) catch unreachable;
         }
     });
 }
