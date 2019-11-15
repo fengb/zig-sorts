@@ -124,14 +124,15 @@ test "ZeeAlloc benchmark" {
         };
 
         pub const args = [_]Arg{
-            Arg{ .input = "zyxabimpncc" },
             Arg{ .input = @embedFile("sorted.data") },
+            Arg{ .input = @embedFile("mostly.data") },
+            Arg{ .input = @embedFile("trend.data") },
             Arg{ .input = @embedFile("reversed.data") },
             Arg{ .input = @embedFile("rand.data") },
-            Arg{ .input = @embedFile("double.data") },
+            Arg{ .input = @embedFile("10x.data") },
         };
 
-        pub const iterations = 10000;
+        pub const iterations = 1000;
 
         pub fn StdInsertionSort(a: Arg) void {
             a.benchSort(std.sort.insertionSort) catch unreachable;
@@ -147,10 +148,6 @@ test "ZeeAlloc benchmark" {
 
         pub fn StdPPSort(a: Arg) void {
             a.benchSort(stdpp.sort) catch unreachable;
-        }
-
-        pub fn BinaryInsertionSort(a: Arg) void {
-            a.benchSort(sorts.binaryInsertionSort) catch unreachable;
         }
 
         pub fn QuickSort(a: Arg) void {
