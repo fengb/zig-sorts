@@ -136,6 +136,10 @@ test "ZeeAlloc benchmark" {
             a.benchSort(sorts.insertionSort) catch unreachable;
         }
 
+        pub fn BinaryInsertionSort(a: Arg) void {
+            a.benchSort(sorts.binaryInsertionSort) catch unreachable;
+        }
+
         pub fn QuickSort(a: Arg) void {
             a.benchSort(sorts.quickSort) catch unreachable;
         }

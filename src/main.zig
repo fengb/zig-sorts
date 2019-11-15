@@ -24,6 +24,51 @@ pub fn insertionSort(comptime T: type, items: []T, lessThan: fn (lhs: T, rhs: T)
     }
 }
 
+fn bsearchLeft(comptime T: type, items: []T, first: usize, last: usize, key: T, lessThan: fn (T, T) bool) usize {
+    if (first >= last) return first;
+
+    var low = first;
+    var high = last;
+    while (low < high) {
+        const mid = low + (high - low) / 2;
+        if (lessThan(items[mid], key)) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+fn bsearchRight(comptime T: type, items: []T, start: usize, end: usize, key: T, lessThan: fn (T, T) bool) usize {
+    if (first >= last) return first;
+
+    var low = first;
+    var high = last;
+    while (low < high) {
+        const mid = low + (high - low) / 2;
+        if (!lessThan(key, items[mid])) {
+            low = mid + 1;
+        } else {
+            high = mid;
+        }
+    }
+    return low;
+}
+
+pub fn binaryInsertionSort(comptime T: type, items: []T, lessThan: fn (T, T) bool) void {
+    var i: usize = 1;
+    while (i < items.len) : (i += 1) {
+        // Skip bsearch on currently sorted pairs
+        if (!lessThan(items[i], items[i - 1])) continue;
+
+        const val = items[i];
+        const ins = bsearchLeft(T, items, 0, i, val, lessThan);
+        std.mem.copyBackwards(T, items[ins + 1 ..], items[ins..i]);
+        items[ins] = val;
+    }
+}
+
 pub fn quickSort(comptime T: type, items: []T, lessThan: fn (lhs: T, rhs: T) bool) void {
     if (items.len < 2) {
         return;
@@ -141,6 +186,10 @@ test "basic sort" {
 
     std.mem.copy(u8, scratch[0..], base[0..]);
     insertionSort(u8, scratch[0..], u8LessThan);
+    try validate(u8, scratch[0..], u8LessThan);
+
+    std.mem.copy(u8, scratch[0..], base[0..]);
+    binaryInsertionSort(u8, scratch[0..], u8LessThan);
     try validate(u8, scratch[0..], u8LessThan);
 
     std.mem.copy(u8, scratch[0..], base[0..]);
