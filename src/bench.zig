@@ -100,16 +100,18 @@ fn nTimes(c: u8, times: usize) void {
 
 const sorts = @import("main.zig");
 const stdpp = @import("stdpp.zig");
+const stdbin = @import("stdbin.zig");
 test "ZeeAlloc benchmark" {
     try benchmark(struct {
+        var prng = std.rand.DefaultPrng.init(0x12345678);
         const Arg = struct {
-            input: []const u8,
+            len: usize,
 
             fn benchSort(a: Arg, comptime sort: var) anyerror!void {
                 var buffer: [1024 * 1024]u8 = undefined;
-                std.mem.copy(u8, buffer[0..], a.input);
-                sort(u8, buffer[0..a.input.len], sorts.u8LessThan);
-                try sorts.validate(u8, buffer[0..a.input.len], sorts.u8LessThan);
+                prng.random.bytes(buffer[0..a.len]);
+                sort(u8, buffer[0..a.len], sorts.u8LessThan);
+                try sorts.validate(u8, buffer[0..a.len], sorts.u8LessThan);
             }
 
             fn benchSortAlloc(a: Arg, comptime sort: var) anyerror!void {
@@ -124,38 +126,27 @@ test "ZeeAlloc benchmark" {
         };
 
         pub const args = [_]Arg{
-            Arg{ .input = @embedFile("sorted.data") },
-            Arg{ .input = @embedFile("mostly.data") },
-            Arg{ .input = @embedFile("trend.data") },
-            Arg{ .input = @embedFile("reversed.data") },
-            Arg{ .input = @embedFile("rand.data") },
-            Arg{ .input = @embedFile("10x.data") },
+            Arg{ .len = 8 },
+            Arg{ .len = 16 },
+            Arg{ .len = 32 },
+            Arg{ .len = 64 },
+            Arg{ .len = 128 },
+            Arg{ .len = 256 },
+            Arg{ .len = 512 },
+            Arg{ .len = 1024 },
+            Arg{ .len = 2048 },
         };
 
-        pub const iterations = 1000;
+        pub const iterations = 100000;
 
         pub fn StdInsertionSort(a: Arg) void {
             a.benchSort(std.sort.insertionSort) catch unreachable;
         }
-
-        pub fn StdSort(a: Arg) void {
-            a.benchSort(std.sort.sort) catch unreachable;
-        }
-
         pub fn StdPPInsertionSort(a: Arg) void {
             a.benchSort(stdpp.insertionSort) catch unreachable;
         }
-
-        pub fn StdPPSort(a: Arg) void {
-            a.benchSort(stdpp.sort) catch unreachable;
-        }
-
-        pub fn QuickSort(a: Arg) void {
-            a.benchSort(sorts.quickSort) catch unreachable;
-        }
-
-        pub fn MergeSort(a: Arg) void {
-            a.benchSortAlloc(sorts.mergeSort) catch unreachable;
+        pub fn StdbinInsertionSort(a: Arg) void {
+            a.benchSort(stdbin.insertionSort) catch unreachable;
         }
     });
 }

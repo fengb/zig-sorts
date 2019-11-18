@@ -6,11 +6,11 @@ const math = std.math;
 const builtin = @import("builtin");
 
 /// Stable in-place sort. O(n) best case, O(pow(n, 2)) worst case. O(1) memory (no allocator required).
-/// Uses binary search, which can be 3x better than naive comparisons
+/// Uses binary search, which can be 2x better than iterative comparisons
 pub fn insertionSort(comptime T: type, items: []T, lessThan: fn (T, T) bool) void {
     var i: usize = 1;
     while (i < items.len) : (i += 1) {
-        // Skip search / copy on already sorted pairs
+        // Skip search + rotate on already sorted pairs
         if (!lessThan(items[i], items[i - 1])) continue;
 
         const val = items[i];
