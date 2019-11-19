@@ -6,17 +6,17 @@ const math = std.math;
 const builtin = @import("builtin");
 
 /// Stable in-place sort. O(n) best case, O(pow(n, 2)) worst case. O(1) memory (no allocator required).
-/// Uses binary search, which can be 3x better than naive comparisons
-pub fn insertionSort(comptime T: type, items: []T, lessThan: fn (T, T) bool) void {
-    var i: usize = 1;
-    while (i < items.len) : (i += 1) {
-        // Skip search / copy on already sorted pairs
-        if (!lessThan(items[i], items[i - 1])) continue;
-
-        const val = items[i];
-        const ins = binaryLast(T, items, val, Range{ .start = 0, .end = i }, lessThan);
-        std.mem.copyBackwards(T, items[ins + 1 ..], items[ins..i]);
-        items[ins] = val;
+pub fn insertionSort(comptime T: type, items: []T, lessThan: fn (lhs: T, rhs: T) bool) void {
+    {
+        var i: usize = 1;
+        while (i < items.len) : (i += 1) {
+            const x = items[i];
+            var j: usize = i;
+            while (j > 0 and lessThan(x, items[j - 1])) : (j -= 1) {
+                items[j] = items[j - 1];
+            }
+            items[j] = x;
+        }
     }
 }
 
@@ -868,39 +868,35 @@ fn findLastBackward(comptime T: type, items: []T, value: T, range: Range, lessTh
 }
 
 fn binaryFirst(comptime T: type, items: []T, value: T, range: Range, lessThan: fn (T, T) bool) usize {
-    var start = range.start;
-    var end = range.end - 1;
+    var curr = range.start;
+    var size = range.length();
     if (range.start >= range.end) return range.end;
-    while (start < end) {
-        const mid = start + (end - start) / 2;
-        if (lessThan(items[mid], value)) {
-            start = mid + 1;
-        } else {
-            end = mid;
+    while (size > 0) {
+        const shift = size % 2;
+
+        size /= 2;
+        const mid = items[curr + size];
+        if (lessThan(mid, value)) {
+            curr += size + shift;
         }
     }
-    if (start == range.end - 1 and lessThan(items[start], value)) {
-        start += 1;
-    }
-    return start;
+    return curr;
 }
 
 fn binaryLast(comptime T: type, items: []T, value: T, range: Range, lessThan: fn (T, T) bool) usize {
-    var start = range.start;
-    var end = range.end - 1;
+    var curr = range.start;
+    var size = range.length();
     if (range.start >= range.end) return range.end;
-    while (start < end) {
-        const mid = start + (end - start) / 2;
-        if (!lessThan(value, items[mid])) {
-            start = mid + 1;
-        } else {
-            end = mid;
+    while (size > 0) {
+        const shift = size % 2;
+
+        size /= 2;
+        const mid = items[curr + size];
+        if (!lessThan(value, mid)) {
+            curr += size + shift;
         }
     }
-    if (start == range.end - 1 and !lessThan(value, items[start])) {
-        start += 1;
-    }
-    return start;
+    return curr;
 }
 
 fn mergeInto(comptime T: type, from: []T, A: Range, B: Range, lessThan: fn (T, T) bool, into: []T) void {
